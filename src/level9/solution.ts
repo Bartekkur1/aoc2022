@@ -62,17 +62,36 @@ const executeMove = (line: LinePart[], move: Move) => {
 const moveTowards = (part: LinePart, target: LinePart) => {
   const { position: { x: targetX, y: targetY } } = target;
   const { position } = part;
-  if (targetX > (position.x + 1)) {
-    position.x++;
+  const diffX = Math.abs(position.x - target.position.x);
+  const diffY = Math.abs(position.y - target.position.y);
+
+  if (diffX > 1) {
+    if (targetX > (position.x + 1)) {
+      position.x++;
+    } else if (targetX < (position.x - 1)) {
+      position.x--;
+    }
+    if (diffY === 1) {
+      if (targetY > (position.y)) {
+        position.y++;
+      } else if (targetY < (position.y)) {
+        position.y--;
+      }
+    }
   }
-  if (targetX < (position.x - 1)) {
-    position.x--;
-  }
-  if (targetY > (position.y - 1)) {
-    position.y++;
-  }
-  if (targetY < (position.y + 1)) {
-    position.y--;
+  if (diffY > 1) {
+    if (targetY > (position.y - 1)) {
+      position.y++;
+    } else if (targetY < (position.y + 1)) {
+      position.y--;
+    }
+    if (diffX === 1) {
+      if (targetX > (position.x)) {
+        position.x++;
+      } else if (targetX < (position.x)) {
+        position.x--;
+      }
+    }
   }
 };
 
@@ -98,11 +117,8 @@ const executeMoves = (line: LinePart[], moves: Move[]) => {
       for (const element of line) {
         if (element.id === 0) continue;
         if (!isNextTo(element, element.next)) {
-          if (element.id === 1) {
-            element.position = Object.assign({}, element.next.prevPosition)
-          } else {
-            moveTowards(element, element.next);
-          }
+          element.prevPosition = Object.assign({}, element.position)
+          moveTowards(element, element.next);
           if (element.id === line.length - 1) {
             tailVisited.add(`${element.position.x},${element.position.y}`);
           }
@@ -114,5 +130,9 @@ const executeMoves = (line: LinePart[], moves: Move[]) => {
 };
 
 const level1Line = createLine(2);
-const tailVisited = executeMoves(level1Line, moves);
-console.log(`Level 1: ${tailVisited.size}`);
+const level1Visited = executeMoves(level1Line, moves);
+console.log(`Level 1: ${level1Visited.size}`);
+
+const level2Line = createLine(10);
+const level2Visited = executeMoves(level2Line, moves);
+console.log(`Level 2: ${level2Visited.size + 1}`);
